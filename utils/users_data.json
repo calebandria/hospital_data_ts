@@ -1,0 +1,15 @@
+[
+    {
+        "username": "kaleba",
+        "password": "Thisisourgod@2008",
+        "role":"admin",
+        "identifier":128746
+    },
+    {
+        "username":"tiana",
+        "password":"Thisisthekingdom",
+        "role": "admin",
+        "identifier":253168
+    }
+
+]
