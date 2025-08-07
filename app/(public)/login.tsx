@@ -4,6 +4,7 @@ import React from 'react';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import users from "@/utils/users_data.json";
 import { router, Stack } from 'expo-router';
+import { useAuth } from '@/context/AuthContext';
 
 const Login = () => {
 
@@ -24,6 +25,8 @@ const Login = () => {
         role: string
     }
 
+    const { signIn } = useAuth();
+
     const [username, setUsername] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [isPasswordVisible, setIsPasswordVisble] = React.useState<boolean>(false);
@@ -36,36 +39,17 @@ const Login = () => {
         setIsPasswordVisble(!isPasswordVisible);
     }
 
-    const sendCredential = (): Promise<ServerResponse> => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                let userFound = users.filter((userInfo) => {
-                    return (userInfo.username === username && userInfo.password === password);
-                });
-
-                if (userFound.length > 0) {
-                    resolve({ username: userFound[0].username, role: userFound[0].role });
-                } else {
-                    reject(new Error("Nom d'utilisateur ou mot de passe erroné"));
-                }
-            }, 1000);
-        });
-    };
-
-
     const loginUser = async () => {
         setLoading(true);
         setError(null);
-
         try {
-            const userResult: ServerResponse = await sendCredential();
-            console.log("Login successfull")
+            const message = await signIn(username, password);
+            console.log(message)
         }
         catch (err) {
             if (err instanceof Error) {
                 console.log("Login failed: ", err.message);
                 setError(err);
-
             }
             else {
                 setError(new Error("An unknow error occured"));

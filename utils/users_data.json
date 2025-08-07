@@ -1,15 +1,16 @@
 [
     {
         "username": "kaleba",
-        "password": "Thisisourgod@2008",
-        "role":"admin",
-        "identifier":128746
+        "password": "Thisisourgod2008",
+        "role": "admin",
+        "acces_token": "fdfijoifjioj551561",
+        "refresh_token": "98468fddfefgfdf8"
     },
     {
-        "username":"tiana",
-        "password":"Thisisthekingdom",
+        "username": "tiana",
+        "password": "Thisisthekingdom",
         "role": "admin",
-        "identifier":253168
+        "acces_token": "fdfijoifjioj551561",
+        "refresh_token": "98468fddfefgfdf8"
     }
-
 ]
