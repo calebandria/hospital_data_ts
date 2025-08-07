@@ -1,16 +1,18 @@
 import { Image } from 'expo-image';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React from 'react';
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import users from "@/utils/users_data.json";
-import { opacity } from 'react-native-reanimated/lib/typescript/Colors';
-import { Link } from 'expo-router';
+import { Link, Stack } from 'expo-router';
 
 const HomeScreen = () => {
 
 
   return (
     <View style={styles.container_1}>
+      <Stack.Screen
+        options={{
+          headerShown:false
+        }}
+      />
       <Image
         style={styles.imageView}
         source={require("@/assets/images/logo_h_small.jpg")}
@@ -26,7 +28,6 @@ const HomeScreen = () => {
       <TouchableOpacity style={styles.button}>
         <Link style={styles.text_in_button} href="/(auth)/login">Commencer maintenant</Link>
       </TouchableOpacity>
-
     </View>
   )
 };
