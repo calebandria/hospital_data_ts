@@ -2,21 +2,22 @@ import React from 'react';
 import { useRouter } from 'expo-router';
 import users from "@/utils/users_data.json";
 import * as SecureStore from 'expo-secure-store';
+import axios from 'axios';
 
 interface AuthContextType {
     isAuthenticated: boolean | null;
     isLoading: boolean;
     error: Error | null
     userRole: string | null;
-    signIn: (email: string, password: string) => void;
+    signIn: (username: string, password: string) => void;
     signOut: () => void;
 }
 
 type ServerResponse = {
     username: string,
     role: string
-    access_token: string
-    refresh_token: string
+    accessToken: string
+    refreshToken: string
 }
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
@@ -28,27 +29,6 @@ export const useAuth = () => {
     return context;
 }
 
-const sendCredential = (username: string, password: string): Promise<ServerResponse> => {
-    return new Promise((resolve, reject) => {
-        setTimeout(() => {
-            let userFound = users.filter((userInfo) => {
-                return (userInfo.username === username && userInfo.password === password);
-            });
-
-            if (userFound.length > 0) {
-                resolve({
-                    username: userFound[0].username,
-                    role: userFound[0].role,
-                    access_token: userFound[0].acces_token,
-                    refresh_token: userFound[0].refresh_token
-                });
-            } else {
-                reject(new Error("Nom d'utilisateur ou mot de passe erroné"));
-            }
-        }, 1000);
-    });
-};
-
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
@@ -57,19 +37,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [userRole, setUserRole] = React.useState<string | null>('');
     const router = useRouter()
 
-    const signIn = async (email: string, password: string) => {
+    const signIn = async (username: string, password: string) => {
         setIsLoading(true);
         setError(null)
         try {
-            const userResult: ServerResponse = await sendCredential(email, password);
-            await SecureStore.setItemAsync('username', userResult.username);
-            await SecureStore.setItemAsync('access_token', userResult.access_token);
-            await SecureStore.setItemAsync('refresh_token', userResult.refresh_token);
-            await SecureStore.setItemAsync('role', userResult.role);
+            const userResult = await axios.post('http://10.0.2.2:8080/api/auth/login', { username, password});
+            const response: ServerResponse = userResult.data
+            await SecureStore.setItemAsync('username', response.username);
+            await SecureStore.setItemAsync('access_token', response.accessToken);
+            await SecureStore.setItemAsync('refresh_token', response.refreshToken);
+            await SecureStore.setItemAsync('role', response.role);
             setIsAuthenticated(true);
-            setUserRole(userResult.role);
+            setUserRole(response.role);
 
-            if (userResult.role === 'admin'){
+            if (response.role === 'ADMIN'){
                 router.push('/(admin)')
             }
             else{
@@ -91,6 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const signOut = async () => {
         try {
+ 
             await SecureStore.deleteItemAsync('role');
             await SecureStore.deleteItemAsync('username');
             await SecureStore.deleteItemAsync('refresh_token');
