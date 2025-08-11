@@ -49,7 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await SecureStore.setItemAsync('role', response.role);
             setIsAuthenticated(true);
             setUserRole(response.role);
-
+            setAuthHeader();
+{}           
             if (response.role === 'ADMIN'){
                 router.push('/(admin)')
             }
@@ -70,7 +71,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const setAuthHeader = async () => {
+    try {
+        const token = await SecureStore.getItemAsync('access_token');
+        if (token) {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            console.log('Token successfully set in headers.');
+        } else {
+            console.log('No token found in secure store.');
+        }
+    } catch (error) {
+        console.error('Failed to set auth header:', error);
+    }
+};
     const signOut = async () => {
+        const refreshToken = await SecureStore.getItemAsync('refresh_token');
+        const logoutResponse = await axios.post('http://10.0.2.2:8080/api/auth/logout', {
+            refreshToken:  refreshToken
+        })
         try {
  
             await SecureStore.deleteItemAsync('role');
@@ -80,8 +98,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setIsAuthenticated(false);
             setUserRole(null);
             router.replace('/(public)/login');
-            return "Déconnexion"
+            return logoutResponse.data.message
         } catch (e) {
+            console.error(e);
             throw (e);
         }
     };
