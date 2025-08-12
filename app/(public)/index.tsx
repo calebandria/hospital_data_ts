@@ -25,7 +25,7 @@ const HomeScreen = () => {
         des données des CSB
       </Text>
       <TouchableOpacity style={styles.button}>
-        <Link style={styles.text_in_button} href="/login">Commencer maintenant</Link>
+        <Link style={styles.text_in_button} href="../(admin)/">Commencer maintenant</Link>
       </TouchableOpacity>
     </View>
   )
