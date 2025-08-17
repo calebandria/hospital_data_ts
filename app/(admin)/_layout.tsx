@@ -1,3 +1,4 @@
+import AuthGuard from '@/components/guard/AuthGuard';
 import { useAuth } from '@/context/AuthContext';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
@@ -20,44 +21,45 @@ export default function AdminLayout() {
 
   }
   return (
-    <Stack>
-      <Stack.Screen
-        name="index"
-        options={{
-          headerRight: () => (
-            <Pressable style={styles.logout} onPress={handleSignout}>
-              <Text style={styles.logout_text}>
-                <MaterialCommunityIcons
-                  name={'logout-variant'}
-                  size={20}
-                  style={[{ color: '#DD2E44' }]}
-                />
-                <Text style={{ marginLeft: 5 }}>Se déconnecter</Text>
-              </Text>
-            </Pressable>
-          ),
-          headerBackVisible: false
-        }}
-      />
-      <Stack.Screen
-        name="list_identifiant"
-        options={{
-          headerRight: () => (
-            <Pressable style={styles.logout} onPress={handleSignout}>
-              <Text style={styles.logout_text}>
-                <MaterialCommunityIcons
-                  name={'logout-variant'}
-                  size={20}
-                  style={[{ color: '#DD2E44' }]}
-                />
-                <Text style={{ marginLeft: 5 }}>Se déconnecter</Text>
-              </Text>
-            </Pressable>
-          ),
-        }}
-      />
-    </Stack>
-
+    <AuthGuard role='ADMIN'>
+      <Stack>
+        <Stack.Screen
+          name="index"
+          options={{
+            headerRight: () => (
+              <Pressable style={styles.logout} onPress={handleSignout}>
+                <Text style={styles.logout_text}>
+                  <MaterialCommunityIcons
+                    name={'logout-variant'}
+                    size={20}
+                    style={[{ color: '#DD2E44' }]}
+                  />
+                  <Text style={{ marginLeft: 5 }}>Se déconnecter</Text>
+                </Text>
+              </Pressable>
+            ),
+            headerBackVisible: false
+          }}
+        />
+        <Stack.Screen
+          name="list_identifiant"
+          options={{
+            headerRight: () => (
+              <Pressable style={styles.logout} onPress={handleSignout}>
+                <Text style={styles.logout_text}>
+                  <MaterialCommunityIcons
+                    name={'logout-variant'}
+                    size={20}
+                    style={[{ color: '#DD2E44' }]}
+                  />
+                  <Text style={{ marginLeft: 5 }}>Se déconnecter</Text>
+                </Text>
+              </Pressable>
+            ),
+          }}
+        />
+      </Stack>
+    </AuthGuard>
   );
 }
 const styles = StyleSheet.create({

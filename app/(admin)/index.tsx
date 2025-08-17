@@ -1,16 +1,20 @@
 import identifiers from "@/utils/identifier_data.json";
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import axios from "axios";
 import { Image } from "expo-image";
 import { Link,router, Stack } from "expo-router";
 import React from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+type ServerResponse = {
+    message: string
+}
 const AdminScreen = () => {
     const [identifiant, setIdentifiant] = React.useState<number>();
     const [clicked, setClicked] = React.useState<boolean>(false);
     const [loading, setLoading] = React.useState<boolean>(false);
     const [error, setError] = React.useState<Error | null>(null);
-    const [ok, setOk] = React.useState<string | null>(null);
+    const [status, setStatus] = React.useState<string | null>(null);
 
     
 
@@ -19,15 +23,15 @@ const AdminScreen = () => {
         setIdentifiant(generatedNumber);
         setClicked(true);
         setError(null);
-        setOk(null);
+        setStatus(null);
     }
 
     const generateIdentifiant2 = () => {
-        let numbers = [102896, 485975, 454151]
+        let numbers = [102896, 485975, 454151, 868489]
         setIdentifiant(numbers[Math.floor(Math.random() * numbers.length)])
         setClicked(true);
         setError(null);
-        setOk(null);
+        setStatus(null);
     }
 
     const sendIdentifiant = (): Promise<string> => {
@@ -54,16 +58,20 @@ const AdminScreen = () => {
         setError(null);
 
         try {
-            const resultResponse = await sendIdentifiant();
+            const resultResponse = await axios.post('http://10.0.2.2:8080/api/identification/register', {"identification": identifiant})
+            const response: ServerResponse = resultResponse.data
             setIdentifiant(undefined);
-            setOk(resultResponse);
+            setStatus(response.message);
+            console.log(resultResponse);
             setClicked(false);
         }
         catch (err) {
             if (err instanceof (Error)) {
+                console.log(error);
                 setError(err);
             }
             else {
+                console.error(error);
                 setError(new Error("An unknown error occured"));
             }
 
@@ -91,7 +99,7 @@ const AdminScreen = () => {
                 <Text style={styles.text}>Vous intéragissez en tant</Text>
                 <Text style={[styles.text, { marginBottom: 20 }]}>qu'admin</Text>
 
-                <Pressable style={styles.button} onPress={generateIdentifiant}>
+                <Pressable style={styles.button} onPress={generateIdentifiant2}>
                     <Text style={styles.text_in_button}>Générer identifiant</Text>
                 </Pressable>
                 {clicked && <Text style={styles.text_toggle}>Le changer ? Cliquer une nouvelle fois</Text>}
@@ -114,7 +122,7 @@ const AdminScreen = () => {
                 <View style={[{ borderBottomColor: 'black', borderBottomWidth: 1, width: '50%' }, error && { borderBottomColor: '#DD2E44' }]} />
                 {loading && <ActivityIndicator style={{ marginTop: 10 }} size="small" color="#0E1B25" />}
                 {error && <Text style={styles.errorText}><MaterialIcons name="error-outline" size={15} color="#DD2E44" style={{ marginRight: 2 }} />{" " + error.message}</Text>}
-                {ok && <Text style={styles.sucess_text}><MaterialIcons name="check-circle-outline" size={15} color="#12631fff" style={{ marginRight: 2 }} />{" " + ok}</Text>}
+                {status && <Text style={styles.sucess_text}><MaterialIcons name="check-circle-outline" size={15} color="#12631fff" style={{ marginRight: 2 }} />{" " + status}</Text>}
             </View>
             <Pressable style={styles.view_list} >
                 <Link style={styles.view_list_text} href={'/list_identifiant'}>

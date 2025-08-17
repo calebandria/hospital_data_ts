@@ -1,47 +1,40 @@
+import React from "react";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import axios from "axios";
+import { router, Stack } from "expo-router";
+import { Image } from "expo-image";
+import { Ionicons } from "@expo/vector-icons";
 import Table from "@/components/Table";
 import TableCell from "@/components/TableCell";
 import TableRow from "@/components/TableRow";
-import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
-import { router, Stack } from "expo-router";
-import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+// Corrected type definition
 export type TableData = {
-    id: string;
-    name: string;
-    age: number;
+    id: number;
+    identification: number;
+    user: null;
 };
 
-const ListIdentifant = () => {
-    const data: TableData[] = [
-        { id: '1', name: 'Alice', age: 30 },
-        { id: '2', name: 'Bob', age: 25 },
-        { id: '3', name: 'Charlie', age: 35 },
-        { id: '4', name: 'Diana', age: 28 },
-        { id: '5', name: 'Edward', age: 42 },
-        { id: '6', name: 'Fiona', age: 22 },
-        { id: '7', name: 'George', age: 50 },
-        { id: '8', name: 'Hannah', age: 19 },
-        { id: '9', name: 'Isaac', age: 60 },
-        { id: '10', name: 'Jasmine', age: 31 },
-        { id: '11', name: 'Kevin', age: 45 },
-        { id: '12', name: 'Laura', age: 33 },
-        { id: '13', name: 'Michael', age: 29 },
-        { id: '14', name: 'Nancy', age: 38 },
-        { id: '15', name: 'Oscar', age: 55 },
-        { id: '16', name: 'Pamela', age: 27 },
-        { id: '17', name: 'Quentin', age: 41 },
-        { id: '18', name: 'Rachel', age: 24 },
-        { id: '19', name: 'Steve', age: 36 },
-        { id: '20', name: 'Tina', age: 49 },
-        { id: '21', name: 'Victor', age: 53 },
-        { id: '22', name: 'Wendy', age: 21 },
-        { id: '23', name: 'Xavier', age: 37 },
-        { id: '24', name: 'Yara', age: 26 },
-        { id: '25', name: 'Zachary', age: 40 },
+// No props are needed for this screen component
+const ListIdentifant = React.memo(() => {
 
-    ];
+    const [identifiants, setIdentifiants] = React.useState<TableData[] | null>(null);
+    const [loading, setLoading] = React.useState<boolean>(true);
+
+    React.useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://10.0.2.2:8080/api/identification/free');
+                setIdentifiants(response.data);
+            } catch (err) {
+                console.error("Failed to fetch data:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []); // Empty dependency array to run only once
 
     return (
         <View style={styles.container_1}>
@@ -54,13 +47,14 @@ const ListIdentifant = () => {
                     ),
                     headerTitle: '',
                     headerShadowVisible: false,
-                    headerBackVisible: false
+                    headerBackVisible: false,
                 }}
             />
             <Image
                 style={styles.imageView}
                 source={require("@/assets/images/logo_h_small.jpg")}
                 placeholder="Image should be here"
+                contentFit="contain"
             />
             <Text style={styles.text}>Vous intéragissez en tant</Text>
             <Text style={[styles.text, { marginBottom: 20 }]}>qu'admin</Text>
@@ -69,20 +63,21 @@ const ListIdentifant = () => {
                     <Table>
                         <TableRow>
                             <TableCell isHeader>N°</TableCell>
-                            <TableCell isHeader>Expire le</TableCell>
+                            <TableCell isHeader>ID</TableCell>
                         </TableRow>
-                        {data.map(item => (
+                        {loading && <Text>Chargement en cours...</Text>}
+                        {identifiants && identifiants.map((item, index) => (
                             <TableRow key={item.id}>
-                                <TableCell>{item.name}</TableCell>
-                                <TableCell>{item.age}</TableCell>
+                                <TableCell>{index + 1}</TableCell>
+                                <TableCell>{item.identification}</TableCell>
                             </TableRow>
                         ))}
                     </Table>
                 </ScrollView>
             </View>
         </View>
-    )
-}
+    );
+});
 
 const styles = StyleSheet.create({
     container_1: {
@@ -92,7 +87,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#FFFF',
     },
     imageView: {
-        flex: 1,
         maxHeight: '20%',
         width: '30%',
     },
@@ -100,14 +94,14 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: '900',
         color: '#3E3C56',
-        cursor: 'pointer',
-        textTransform:'uppercase'
+        textTransform: 'uppercase',
     },
     screenContainer: {
         flex: 1,
+        width: '100%',
         padding: 20,
         backgroundColor: '#ffff',
-    }
-})
+    },
+});
 
 export default ListIdentifant;

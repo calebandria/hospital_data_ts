@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import users from "@/utils/users_data.json";
 import * as SecureStore from 'expo-secure-store';
@@ -6,6 +6,7 @@ import axios from 'axios';
 
 interface AuthContextType {
     isAuthenticated: boolean | null;
+    isInitialized: boolean | null,
     isLoading: boolean;
     error: Error | null
     userRole: string | null;
@@ -29,15 +30,41 @@ export const useAuth = () => {
     return context;
 }
 
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = React.useState<boolean | null>(null);
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
     const [error, setError] = React.useState<Error | null>(null)
     const [userRole, setUserRole] = React.useState<string | null>('');
-    const router = useRouter()
+    const [isInitialized, setIsInitialized] = React.useState<boolean| null>(null);
+    const router = useRouter();
 
-    const signIn = async (username: string, password: string) => {
+      useEffect(()=>{
+        const initializeAuth = async ()=>{
+        if (isInitialized) return;
+
+        try{
+            setIsLoading(true);
+            const storedToken = await SecureStore.getItem('access_token');
+            if(storedToken){
+                console.log("User already logged in");
+                setIsInitialized(true);
+            }
+            else{
+                console.log("No user logged")
+            }
+        }
+        catch(err){
+            console.error("Error of initialization: ", err);
+        }
+        finally {
+            setIsLoading(false);
+        }
+        }
+
+        initializeAuth()
+    }, [isInitialized])
+
+    const signIn = React.useCallback(async (username: string, password: string) => {
         setIsLoading(true);
         setError(null)
         try {
@@ -50,13 +77,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setIsAuthenticated(true);
             setUserRole(response.role);
             setAuthHeader();
-{}           
+
             if (response.role === 'ADMIN'){
-                router.push('/(admin)')
+                router.replace('/(admin)')
             }
             else{
                 console.log("The user role is: ",userRole)
-                router.replace('/(public)')
             }
 
             return "Login successful";
@@ -69,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 throw (new Error("An unknown error occured"));
             }
         }
-    };
+    },[isLoading,error]);
 
     const setAuthHeader = async () => {
     try {
@@ -84,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.error('Failed to set auth header:', error);
     }
 };
+
     const signOut = async () => {
         const refreshToken = await SecureStore.getItemAsync('refresh_token');
         const logoutResponse = await axios.post('http://10.0.2.2:8080/api/auth/logout', {
@@ -107,6 +134,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const value: AuthContextType = {
         isAuthenticated,
+        isInitialized,
         isLoading,
         error,
         userRole,
