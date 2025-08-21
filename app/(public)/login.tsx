@@ -48,13 +48,9 @@ const Login = () => {
         <View style={styles.container_1}>
             <Stack.Screen
                 options={{
-                    headerLeft: () => (
-                        <TouchableOpacity onPress={() => router.back()}>
-                            <Ionicons name="chevron-back" size={24} color="black" />
-                        </TouchableOpacity>
-                    ),
                     headerTitle:'',
-                    headerShadowVisible:false
+                    headerShadowVisible:false,
+                    headerShown:false
                 }}
             />
             <Image

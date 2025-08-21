@@ -45,7 +45,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try{
             setIsLoading(true);
             const storedToken = await SecureStore.getItem('access_token');
-            console.log(storedToken);
             if(storedToken){
                 console.log("User already logged in");
                 setIsInitialized(true);

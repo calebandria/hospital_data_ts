@@ -62,13 +62,12 @@ const AdminScreen = () => {
             const response: ServerResponse = resultResponse.data
             setIdentifiant(undefined);
             setStatus(response.message);
-            console.log(resultResponse);
             setClicked(false);
         }
         catch (err) {
             if (err instanceof (Error)) {
-                console.log(error);
                 setError(err);
+                console.log(" An error occured!")
             }
             else {
                 console.error(error);
@@ -99,7 +98,7 @@ const AdminScreen = () => {
                 <Text style={styles.text}>Vous intéragissez en tant</Text>
                 <Text style={[styles.text, { marginBottom: 20 }]}>qu'admin</Text>
 
-                <Pressable style={styles.button} onPress={generateIdentifiant2}>
+                <Pressable style={styles.button} onPress={generateIdentifiant}>
                     <Text style={styles.text_in_button}>Générer identifiant</Text>
                 </Pressable>
                 {clicked && <Text style={styles.text_toggle}>Le changer ? Cliquer une nouvelle fois</Text>}
@@ -125,7 +124,7 @@ const AdminScreen = () => {
                 {status && <Text style={styles.sucess_text}><MaterialIcons name="check-circle-outline" size={15} color="#12631fff" style={{ marginRight: 2 }} />{" " + status}</Text>}
             </View>
             <Pressable style={styles.view_list} >
-                <Link style={styles.view_list_text} href={'/list_identifiant'}>
+                <Link style={styles.view_list_text} href={'/list_identifiant'} onPress={ ()=>setStatus(null)}>
                     Voir la liste d'attente d'inscription
                 </Link>
             </Pressable>

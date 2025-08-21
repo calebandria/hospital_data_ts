@@ -10,10 +10,8 @@ const HomeScreen = () => {
   // Perform redirect based on auth status
   React.useEffect(() => {
     if (!isLoading) {
-      // Hide the splash screen only after the auth check is complete
       SplashScreen.hideAsync();
       if (userRole == "ADMIN" || isInitialized) {
-        // User is logged in, redirect to the main app layout (e.g., 'home' or '(tabs)')
         router.replace('/(admin)');
       }
     }
