@@ -45,9 +45,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try{
             setIsLoading(true);
             const storedToken = await SecureStore.getItem('access_token');
+            console.log(storedToken);
             if(storedToken){
                 console.log("User already logged in");
                 setIsInitialized(true);
+                await setAuthHeader();
+
             }
             else{
                 console.log("No user logged")
@@ -62,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         initializeAuth()
-    }, [isInitialized])
+    }, [])
 
     const signIn = React.useCallback(async (username: string, password: string) => {
         setIsLoading(true);
@@ -76,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await SecureStore.setItemAsync('role', response.role);
             setIsAuthenticated(true);
             setUserRole(response.role);
-            setAuthHeader();
+            await setAuthHeader();
 
             if (response.role === 'ADMIN'){
                 router.replace('/(admin)')

@@ -16,6 +16,9 @@ const AuthGuard = ({ children, role }: AuthGuardProps) => {
         if (!isInitialized || isLoading || !navigationState?.key) {
             return;
         }
+        else{
+            console.log("user initialized");
+        }
 
         if (!role || userRole !== role) {
             console.log("AuthGuard: Access denied, redirecting to login", {

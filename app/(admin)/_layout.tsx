@@ -21,7 +21,7 @@ export default function AdminLayout() {
 
   }
   return (
-    <AuthGuard role='ADMIN'>
+  /*   <AuthGuard role='ADMIN'> */
       <Stack>
         <Stack.Screen
           name="index"
@@ -59,7 +59,7 @@ export default function AdminLayout() {
           }}
         />
       </Stack>
-    </AuthGuard>
+/*     </AuthGuard> */
   );
 }
 const styles = StyleSheet.create({

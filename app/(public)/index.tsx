@@ -1,15 +1,29 @@
 import { Image } from 'expo-image';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React from 'react';
-import { Link, Stack } from 'expo-router';
+import { Link, router, SplashScreen, Stack } from 'expo-router';
+import { useAuth } from '@/context/AuthContext';
 
 const HomeScreen = () => {
+  const { userRole, isLoading, isInitialized } = useAuth(); // Use your custom hook here
+
+  // Perform redirect based on auth status
+  React.useEffect(() => {
+    if (!isLoading) {
+      // Hide the splash screen only after the auth check is complete
+      SplashScreen.hideAsync();
+      if (userRole == "ADMIN" || isInitialized) {
+        // User is logged in, redirect to the main app layout (e.g., 'home' or '(tabs)')
+        router.replace('/(admin)');
+      }
+    }
+  }, [userRole, isLoading]);
 
   return (
     <View style={styles.container_1}>
       <Stack.Screen
         options={{
-          headerShown:false
+          headerShown: false
         }}
       />
       <Image

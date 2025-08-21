@@ -2,28 +2,10 @@ import { Image } from 'expo-image';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import users from "@/utils/users_data.json";
 import { router, Stack } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 
 const Login = () => {
-
-    type UserCredential = {
-        user: string,
-        password: string
-    }
-
-    type User = {
-        username: string,
-        password: string,
-        role: string,
-        identifier: number
-    }
-
-    type ServerResponse = {
-        username: string,
-        role: string
-    }
 
     const { signIn } = useAuth();
 
@@ -61,10 +43,6 @@ const Login = () => {
             setPassword('');
         }
     }
-
-    React.useEffect(() => {
-
-    }, [])
 
     return (
         <View style={styles.container_1}>
