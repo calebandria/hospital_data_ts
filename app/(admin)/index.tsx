@@ -67,7 +67,7 @@ const AdminScreen = () => {
         catch (err) {
             if (err instanceof (Error)) {
                 setError(err);
-                console.log(" An error occured!")
+                console.log(err);
             }
             else {
                 console.error(error);

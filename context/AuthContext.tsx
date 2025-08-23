@@ -14,7 +14,7 @@ interface AuthContextType {
     signOut: () => void;
 }
 
-type ServerResponse = {
+export type ServerResponse = {
     username: string,
     role: string
     accessToken: string
@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if(storedToken){
                 console.log("User already logged in");
                 setIsInitialized(true);
-                await setAuthHeader();
+                //await setAuthHeader();
 
             }
             else{
@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await SecureStore.setItemAsync('role', response.role);
             setIsAuthenticated(true);
             setUserRole(response.role);
-            await setAuthHeader();
+           // await setAuthHeader();
 
             if (response.role === 'ADMIN'){
                 router.replace('/(admin)')
