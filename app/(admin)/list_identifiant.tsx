@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Table from "@/components/Table";
 import TableCell from "@/components/TableCell";
 import TableRow from "@/components/TableRow";
+import { API } from "@/src/shared/config/axios";
 
 // Corrected type definition
 export type TableData = {
@@ -24,7 +25,7 @@ const ListIdentifant = React.memo(() => {
     React.useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://10.0.2.2:8080/api/identification/free');
+                const response = await API.get('/identification/free');
                 setIdentifiants(response.data);
             } catch (err) {
                 console.error("Failed to fetch data:", err);

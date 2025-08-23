@@ -1,6 +1,6 @@
+import { API } from "@/src/shared/config/axios";
 import identifiers from "@/utils/identifier_data.json";
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import axios from "axios";
 import { Image } from "expo-image";
 import { Link,router, Stack } from "expo-router";
 import React from "react";
@@ -58,7 +58,7 @@ const AdminScreen = () => {
         setError(null);
 
         try {
-            const resultResponse = await axios.post('http://10.0.2.2:8080/api/identification/register', {"identification": identifiant})
+            const resultResponse = await API.post('/identification/register', {"identification": identifiant})
             const response: ServerResponse = resultResponse.data
             setIdentifiant(undefined);
             setStatus(response.message);

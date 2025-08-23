@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'expo-router';
-import users from "@/utils/users_data.json";
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
+import { API } from '@/src/shared/config/axios';
 
 interface AuthContextType {
     isAuthenticated: boolean | null;
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(true);
         setError(null)
         try {
-            const userResult = await axios.post('http://10.0.2.2:8080/api/auth/login', { username, password});
+            const userResult = await API.post('/auth/login', { username, password});
             const response: ServerResponse = userResult.data
             await SecureStore.setItemAsync('username', response.username);
             await SecureStore.setItemAsync('access_token', response.accessToken);
@@ -115,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const signOut = async () => {
         const refreshToken = await SecureStore.getItemAsync('refresh_token');
-        const logoutResponse = await axios.post('http://10.0.2.2:8080/api/auth/logout', {
+        const logoutResponse = await API.post('/auth/logout', {
             refreshToken:  refreshToken
         })
         try {
