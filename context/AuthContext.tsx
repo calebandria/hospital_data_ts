@@ -35,32 +35,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
     const [error, setError] = React.useState<Error | null>(null)
     const [userRole, setUserRole] = React.useState<string | null>('');
-    const [isInitialized, setIsInitialized] = React.useState<boolean| null>(null);
+    const [isInitialized, setIsInitialized] = React.useState<boolean | null>(null);
     const router = useRouter();
 
-      useEffect(()=>{
-        const initializeAuth = async ()=>{
-        if (isInitialized) return;
+    useEffect(() => {
+        const initializeAuth = async () => {
+            if (isInitialized) return;
 
-        try{
-            setIsLoading(true);
-            const storedToken = await SecureStore.getItem('access_token');
-            if(storedToken){
-                console.log("User already logged in");
-                setIsInitialized(true);
-                //await setAuthHeader();
+            try {
+                setIsLoading(true);
+                const storedToken = await SecureStore.getItem('access_token');
+                if (storedToken) {
+                    console.log("User already logged in");
+                    setIsInitialized(true);
+                    //await setAuthHeader();
 
+                }
+                else {
+                    console.log("No user logged")
+                }
             }
-            else{
-                console.log("No user logged")
+            catch (err) {
+                console.error("Error of initialization: ", err);
             }
-        }
-        catch(err){
-            console.error("Error of initialization: ", err);
-        }
-        finally {
-            setIsLoading(false);
-        }
+            finally {
+                setIsLoading(false);
+            }
         }
 
         initializeAuth()
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(true);
         setError(null)
         try {
-            const userResult = await API.post('/auth/login', { username, password});
+            const userResult = await API.post('/auth/login', { username, password });
             const response: ServerResponse = userResult.data
             await SecureStore.setItemAsync('username', response.username);
             await SecureStore.setItemAsync('access_token', response.accessToken);
@@ -78,13 +78,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await SecureStore.setItemAsync('role', response.role);
             setIsAuthenticated(true);
             setUserRole(response.role);
-           // await setAuthHeader();
+            // await setAuthHeader();
 
-            if (response.role === 'ADMIN'){
+            if (response.role === 'ADMIN') {
                 router.replace('/(admin)')
             }
-            else{
-                console.log("The user role is: ",userRole)
+            else {
+                console.log("The user role is: ", userRole)
             }
 
             return "Login successful";
@@ -97,29 +97,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 throw (new Error("An unknown error occured"));
             }
         }
-    },[isLoading,error]);
+    }, [isLoading, error]);
 
     const setAuthHeader = async () => {
-    try {
-        const token = await SecureStore.getItemAsync('access_token');
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-            console.log('Token successfully set in headers.');
-        } else {
-            console.log('No token found in secure store.');
+        try {
+            const token = await SecureStore.getItemAsync('access_token');
+            if (token) {
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                console.log('Token successfully set in headers.');
+            } else {
+                console.log('No token found in secure store.');
+            }
+        } catch (error) {
+            console.error('Failed to set auth header:', error);
         }
-    } catch (error) {
-        console.error('Failed to set auth header:', error);
-    }
-};
+    };
+
+    const checkCode = React.useCallback(async (code: string) => {
+        setIsLoading(true);
+        setError(null)
+
+        let codeNumber: number = parseInt(code);
+        try {
+            const response = await API.post('/auth/validate-code', { codeNumber });
+        }
+
+        catch (err) {
+            if(err instanceof Error){
+                throw (err);
+            }
+            else {
+                throw (new Error("An unknown error occured"));
+            }
+        }
+    }, [isLoading, error])
 
     const signOut = async () => {
         const refreshToken = await SecureStore.getItemAsync('refresh_token');
         const logoutResponse = await API.post('/auth/logout', {
-            refreshToken:  refreshToken
+            refreshToken: refreshToken
         })
         try {
- 
+
             await SecureStore.deleteItemAsync('role');
             await SecureStore.deleteItemAsync('username');
             await SecureStore.deleteItemAsync('refresh_token');

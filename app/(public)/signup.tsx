@@ -1,25 +1,20 @@
 import { Image } from 'expo-image';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React from 'react';
-import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
-import { Link, router, Stack } from 'expo-router';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Stack } from 'expo-router';
 import { useAuth } from '@/context/AuthContext';
 
-const Login = () => {
+const Signup = () => {
 
     const { signIn } = useAuth();
 
-    const [username, setUsername] = React.useState('');
-    const [password, setPassword] = React.useState('');
+    const [code, setCode] = React.useState<string>('');
     const [isPasswordVisible, setIsPasswordVisble] = React.useState<boolean>(false);
     const [loading, setLoading] = React.useState<boolean>(false);
     const [error, setError] = React.useState<Error | null>(null);
 
-    const isButtonDisabled = !username || !password;
-
-    const toggleVisibility = () => {
-        setIsPasswordVisble(!isPasswordVisible);
-    }
+    const isButtonDisabled = !code 
 
     const loginUser = async () => {
         setLoading(true);
@@ -39,8 +34,7 @@ const Login = () => {
         }
         finally {
             setLoading(false);
-            setUsername('');
-            setPassword('');
+            setCode('');
         }
     }
 
@@ -50,7 +44,7 @@ const Login = () => {
                 options={{
                     headerTitle: '',
                     headerShadowVisible: false,
-                    headerShown: false
+                    headerShown: true
                 }}
             />
             <Image
@@ -58,37 +52,19 @@ const Login = () => {
                 source={require("@/assets/images/logo_h_small.jpg")}
                 placeholder="Image should be here"
             />
-            <Text style={styles.text}>Connectez-vous</Text>
+            <Text style={styles.text}>Inscrivez-vous</Text>
             <TextInput
                 style={[styles.input, { borderColor: error ? '#DD2E44' : 'black' }]}
-                placeholder="Nom d'utilisateur"
-                onChangeText={(username) => {
-                    setUsername(username);
+                placeholder="Code"
+                onChangeText={(code) => {
+                    setCode(code);
                     setError(null);
                 }}
-                value={username}
+                value={code}
             />
-            <View style={styles.container_2}>
-                <TextInput
-                    style={[styles.input_2, { borderColor: error ? '#DD2E44' : 'black' }]}
-                    placeholder="Mot de passe"
-                    secureTextEntry={!isPasswordVisible}
-                    onChangeText={(password) => {
-                        setPassword(password);
-                        setError(null);
-                    }}
-                    value={password}
-                />
-
-                <Pressable style={styles.eye} onPress={toggleVisibility}>
-                    <MaterialCommunityIcons
-                        name={isPasswordVisible ? 'eye' : 'eye-off'}
-                        size={15}
-                        color={error ? '#DD2E44' : 'black'}
-                    />
-                </Pressable>
-            </View>
             {error && <Text style={styles.errorText}><MaterialIcons name="error-outline" size={15} color="#DD2E44" style={{ marginRight: 2 }} />{" " + error.message}</Text>}
+            <Text style={styles.text_welcome}>Entrez le code qui vous a été assigné par </Text>
+            <Text style={styles.text_welcome}>l’administrateur</Text>
 
             <TouchableOpacity
                 style={[styles.button, { opacity: isButtonDisabled ? 0.8 : 1 }]}
@@ -96,20 +72,9 @@ const Login = () => {
                 disabled={isButtonDisabled || loading}
             >
                 <Text style={styles.text_in_button}>
-                    Se connecter {loading && <ActivityIndicator style={{ marginTop: 10 }} size="small" color="#ffff" />}
+                    Valider {loading && <ActivityIndicator style={{ marginTop: 10 }} size="small" color="#ffff" />}
                 </Text>
             </TouchableOpacity>
-
-            <View style={styles.no_account}>
-                <Text>Pas de compte?</Text>
-                <Pressable>
-                    <Link style={styles.signup} href={"./signup"}>
-                        S'inscrire
-                    </Link>
-                </Pressable>
-            </View>
-
-
         </View>
     );
 }
@@ -150,7 +115,8 @@ const styles = StyleSheet.create({
         height: 40,
         width: '70%',
         marginBottom: 20,
-        borderRadius: 10
+        borderRadius: 10,
+        letterSpacing: 5
     },
     input_2: {
         borderWidth: 1,
@@ -163,7 +129,8 @@ const styles = StyleSheet.create({
     button: {
         flexDirection: 'column',
         padding: 17,
-        width: '50%',
+        width: '40%',
+        marginTop: 20,
         backgroundColor: "#0E1B25",
         borderRadius: 30
 
@@ -179,16 +146,9 @@ const styles = StyleSheet.create({
         marginLeft: 5,
         textAlign: 'center',
     },
-
-    no_account: {
-        marginTop: 6,
-        display:'flex',
-        flexDirection: 'row',
-        columnGap: 7
+    text_welcome: {
+        color: "#776868"
     },
-    signup : {
-        color:'#55ACEE'
-    }
 });
 
-export default Login;
+export default Signup;
