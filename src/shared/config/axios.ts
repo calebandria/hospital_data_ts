@@ -3,6 +3,12 @@ import * as SecureStore from 'expo-secure-store';
 import { CONFIG } from '.';
 import { ServerResponse } from '@/context/AuthContext';
 
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    skipRequestInterceptor?: boolean;
+    skipResponseInterceptor?: boolean;
+  }
+}
 const API = axios.create({
     baseURL: CONFIG.baseURL,
 });
@@ -13,6 +19,9 @@ const AuthAPI = axios.create({
 
 API.interceptors.request.use(
     async (config) => {
+        if (config.skipRequestInterceptor) {
+      return config; // Skips the interceptor logic
+    }
         const token = await SecureStore.getItemAsync('access_token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -27,10 +36,19 @@ API.interceptors.request.use(
 
 API.interceptors.response.use(
     (response) => {
-        return response;
-    },
+    if (response.config.skipResponseInterceptor) {
+      return response;
+    }
+    console.log('Successfully handled by interceptor');
+    return response;
+  },
     async (error) => {
         const originalRequest = error.config;
+        if (error.config?.skipResponseInterceptor) {
+            console.log("ERROR HANDLER: SKIPPING INTERCEPTOR LOGIC");
+            // This rejects the promise immediately, bypassing the 401 check
+            return Promise.reject(error);
+        }
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 

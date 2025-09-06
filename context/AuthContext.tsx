@@ -3,15 +3,18 @@ import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import { API } from '@/src/shared/config/axios';
+import { CONFIG } from '@/src/shared/config';
 
 interface AuthContextType {
     isAuthenticated: boolean | null;
     isInitialized: boolean | null,
     isLoading: boolean;
-    error: Error | null
+    error: Error | null; 
     userRole: string | null;
     signIn: (username: string, password: string) => void;
     signOut: () => void;
+    checkCode: (code: string) => void;
+    codeChecked : number | null;
 }
 
 export type ServerResponse = {
@@ -19,6 +22,11 @@ export type ServerResponse = {
     role: string
     accessToken: string
     refreshToken: string
+}
+
+type CodeCheckingResponse = {
+    role: string,
+    identification: number
 }
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
@@ -36,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [error, setError] = React.useState<Error | null>(null)
     const [userRole, setUserRole] = React.useState<string | null>('');
     const [isInitialized, setIsInitialized] = React.useState<boolean | null>(null);
+    const [codeChecked, setCodeChecked] = React.useState<number |null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -117,9 +126,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoading(true);
         setError(null)
 
-        let codeNumber: number = parseInt(code);
         try {
-            const response = await API.post('/auth/validate-code', { codeNumber });
+            const { data }  = (await axios.get(`${CONFIG.baseURL}identification/validate-code/${code}`));
+            setCodeChecked(data.identification);
+            console.log(codeChecked);
         }
 
         catch (err) {
@@ -159,8 +169,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         error,
         userRole,
+        checkCode,
         signIn,
-        signOut
+        signOut,
+        codeChecked
     }
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
