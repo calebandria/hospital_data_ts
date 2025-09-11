@@ -2,9 +2,10 @@ import { API } from "@/src/shared/config/axios";
 import identifiers from "@/utils/identifier_data.json";
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { Link,router, Stack } from "expo-router";
+import { Link, router, Stack } from "expo-router";
 import React from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, TouchableOpacity, View, TextInput } from "react-native";
+import { Dropdown } from 'react-native-element-dropdown';
 
 type ServerResponse = {
     message: string
@@ -15,42 +16,27 @@ const AdminScreen = () => {
     const [loading, setLoading] = React.useState<boolean>(false);
     const [error, setError] = React.useState<Error | null>(null);
     const [status, setStatus] = React.useState<string | null>(null);
+    const [role, setRole] = React.useState<string | null>(null);
 
-    
+    const dataRole = [
+        { label: 'Administrator', value: 'ADMIN' },
+        { label: 'Responsable coge', value: 'COGE' }
+
+    ]
 
     const generateIdentifiant = () => {
         let generatedNumber = Math.floor(100000 + Math.random() * 900000);
         setIdentifiant(generatedNumber);
-        setClicked(true);
+        console.log(role)
+        if (role) {
+            setClicked(true);
+        }
+        else {
+            setClicked(false);
+        }
+
         setError(null);
         setStatus(null);
-    }
-
-    const generateIdentifiant2 = () => {
-        let numbers = [102896, 485975, 454151, 868489]
-        setIdentifiant(numbers[Math.floor(Math.random() * numbers.length)])
-        setClicked(true);
-        setError(null);
-        setStatus(null);
-    }
-
-    const sendIdentifiant = (): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                let userFound = identifiers.filter((user) => {
-                    return user.identifier == identifiant;
-                });
-
-                if (userFound.length == 0) {
-                    resolve("Identifiant enregistré");
-                }
-
-                else {
-                    reject(new Error("Erreur! Identifiant existant!"));
-                }
-            }, 3000);
-        })
-
     }
 
     const handleIdentifiant = async () => {
@@ -58,7 +44,7 @@ const AdminScreen = () => {
         setError(null);
 
         try {
-            const resultResponse = await API.post('/identification/register', {"identification": identifiant})
+            const resultResponse = await API.post('/identification/register', { "identification": identifiant , "role": role})
             const response: ServerResponse = resultResponse.data
             setIdentifiant(undefined);
             setStatus(response.message);
@@ -103,28 +89,54 @@ const AdminScreen = () => {
                 </Pressable>
                 {clicked && <Text style={styles.text_toggle}>Le changer ? Cliquer une nouvelle fois</Text>}
                 {clicked && <Text>sur le bouton ci-dessus</Text>}
-                <View style={styles.container_2}>
-                    <Pressable style={[styles.clickable_send, clicked && { right: -60, top: '50%' }]}
-                        disabled={!clicked !== Boolean(error)}
-                        onPress={handleIdentifiant}
-                    >
-                        <MaterialCommunityIcons
-                            name={'send'}
-                            size={20}
-                            style={[styles.icon_send, clicked && { color: "#55ACEE" }, error && { color: "#3E3C56" }]}
 
-                        />
-                    </Pressable>
-                    <Text style={[styles.text_generated, clicked && { marginTop: 20 }, error && { color: "#DD2E44" }]}>{identifiant}</Text>
+                <Text style={[styles.text_generated, clicked && { marginTop: 20 }, error && { color: "#DD2E44" }]}>{identifiant}</Text>
 
-                </View>
+
                 <View style={[{ borderBottomColor: 'black', borderBottomWidth: 1, width: '50%' }, error && { borderBottomColor: '#DD2E44' }]} />
                 {loading && <ActivityIndicator style={{ marginTop: 10 }} size="small" color="#0E1B25" />}
                 {error && <Text style={styles.errorText}><MaterialIcons name="error-outline" size={15} color="#DD2E44" style={{ marginRight: 2 }} />{" " + error.message}</Text>}
                 {status && <Text style={styles.sucess_text}><MaterialIcons name="check-circle-outline" size={15} color="#12631fff" style={{ marginRight: 2 }} />{" " + status}</Text>}
+
+
+                <Dropdown
+                    style={styles.dropdown}
+                    placeholderStyle={styles.placeholderStyle}
+                    selectedTextStyle={styles.selectedTextStyle}
+                    inputSearchStyle={styles.inputSearchStyle}
+                    iconStyle={styles.iconStyle}
+                    data={dataRole}
+                    search
+                    maxHeight={300}
+                    labelField="label"
+                    valueField="value"
+                    placeholder="Choisir role"
+                    searchPlaceholder="Search..."
+                    value={role}
+                    onChange={ async (item) => {
+                        await setRole(item.value);
+                        if(identifiant){
+                            setClicked(true)
+                        }
+                    }}
+                />
+                <Pressable
+                    disabled={!clicked !== Boolean(error)}
+                    onPress={handleIdentifiant}
+                >
+                    <MaterialCommunityIcons
+                        name={'send'}
+                        size={20}
+                        style={[styles.icon_send, clicked && { color: "#55ACEE" }, error && { color: "#3E3C56" }]}
+
+                    />
+                </Pressable>
+
+
             </View>
+
             <Pressable style={styles.view_list} >
-                <Link style={styles.view_list_text} href={'/list_identifiant'} onPress={ ()=>setStatus(null)}>
+                <Link style={styles.view_list_text} href={'/list_identifiant'} onPress={() => setStatus(null)}>
                     Voir la liste d'attente d'inscription
                 </Link>
             </Pressable>
@@ -163,16 +175,6 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         backgroundColor: '#FFFF',
     },
-    container_2: {
-        flexDirection: 'row',
-        position: 'relative'
-
-    },
-    clickable_send: {
-        position: 'absolute',
-        right: -140,
-        top: '70%',
-    },
     icon_send: {
         color: '#3E3C56',
     },
@@ -181,7 +183,7 @@ const styles = StyleSheet.create({
         fontWeight: '900',
         color: '#3E3C56',
         cursor: 'pointer',
-        textTransform:'uppercase',
+        textTransform: 'uppercase',
     },
     text_generated: {
         fontSize: 30,
@@ -236,6 +238,30 @@ const styles = StyleSheet.create({
         color: '#12631fff',
         margin: 10,
         textAlign: 'center',
+    },
+    dropdown: {
+        margin: 16,
+        height: 50,
+        borderBottomColor: 'gray',
+        borderBottomWidth: 0.5,
+        width: 220
+    },
+    icon: {
+        marginRight: 5,
+    },
+    placeholderStyle: {
+        fontSize: 16,
+    },
+    selectedTextStyle: {
+        fontSize: 16,
+    },
+    iconStyle: {
+        width: 20,
+        height: 20,
+    },
+    inputSearchStyle: {
+        height: 40,
+        fontSize: 16,
     },
 });
 

@@ -22,12 +22,13 @@ const Signup = () =>{
         setIsPasswordVisble(!isPasswordVisible);
     }
 
-    const loginUser = async () => {
+    const signupUser = async () => {
         setLoading(true);
         setError(null);
         try {
             const message = await signUp(username, password, codeChecked as number);
             console.log(message)
+            router.replace("./login")
         }
         catch (err) {
             if (err instanceof Error) {
@@ -59,7 +60,7 @@ const Signup = () =>{
                 source={require("@/assets/images/logo_h_small.jpg")}
                 placeholder="Image should be here"
             />
-            <Text style={styles.text}>Connectez-vous</Text>
+            <Text style={styles.text}>Inscrivez-vous</Text>
             <TextInput
                 style={[styles.input, { borderColor: error ? '#DD2E44' : 'black' }]}
                 placeholder="Nom d'utilisateur"
@@ -93,24 +94,13 @@ const Signup = () =>{
 
             <TouchableOpacity
                 style={[styles.button, { opacity: isButtonDisabled ? 0.8 : 1 }]}
-                onPress={loginUser}
+                onPress={signupUser}
                 disabled={isButtonDisabled || loading}
             >
                 <Text style={styles.text_in_button}>
-                    Se connecter {loading && <ActivityIndicator style={{ marginTop: 10 }} size="small" color="#ffff" />}
+                    S'inscrire {loading && <ActivityIndicator style={{ marginTop: 10 }} size="small" color="#ffff" />}
                 </Text>
             </TouchableOpacity>
-
-            <View style={styles.no_account}>
-                <Text>Pas de compte?</Text>
-                <Pressable>
-                    <Link style={styles.signup} href={"./code_verify"}>
-                        S'inscrire
-                    </Link>
-                </Pressable>
-            </View>
-
-
         </View>
     );
 }
