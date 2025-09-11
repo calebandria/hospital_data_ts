@@ -14,6 +14,7 @@ interface AuthContextType {
     signIn: (username: string, password: string) => void;
     signOut: () => void;
     checkCode: (code: string) => void;
+    signUp : (username: string, password:string, code:number) => void
     codeChecked : number | null;
 }
 
@@ -27,6 +28,10 @@ export type ServerResponse = {
 type CodeCheckingResponse = {
     role: string,
     identification: number
+}
+
+type RegistrationResponse = {
+    message: string
 }
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
@@ -108,6 +113,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [isLoading, error]);
 
+    const signUp = React.useCallback(async (username: string, password: string, identification: number) => {
+        setIsLoading(true);
+        setError(null)
+        try {
+            const userResult = await API.post('/auth/register', { username, password , identification});
+            const response: RegistrationResponse = userResult.data
+
+            return "Registration successful";
+        }
+        catch (err) {
+            if (err instanceof Error) {
+                throw (err)
+            }
+            else {
+                throw (new Error("An unknown error occured"));
+            }
+        }
+    }, [isLoading, error]);
+
     const setAuthHeader = async () => {
         try {
             const token = await SecureStore.getItemAsync('access_token');
@@ -129,7 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             const { data }  = (await axios.get(`${CONFIG.baseURL}identification/validate-code/${code}`));
             setCodeChecked(data.identification);
-            console.log(codeChecked);
+            //console.log(codeChecked);
         }
 
         catch (err) {
@@ -172,6 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         checkCode,
         signIn,
         signOut,
+        signUp,
         codeChecked
     }
 
