@@ -96,6 +96,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (response.role === 'ADMIN') {
                 router.replace('/(admin)')
+            } else
+            if (response.role === 'COGE') {
+                router.replace('/(coge)')
             }
             else {
                 console.log("The user role is: ", userRole)
