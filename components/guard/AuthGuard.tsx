@@ -9,38 +9,29 @@ interface AuthGuardProps {
 }
 
 const AuthGuard = ({ children, role }: AuthGuardProps) => {
-    const { userRole, isLoading, isInitialized } = useAuth();
-    const navigationState = useRootNavigationState();
-
+    const { signOut, isAuthenticated, userRole } = useAuth();
     useEffect(() => {
-        if (!isInitialized || isLoading || !navigationState?.key) {
-            return;
+        const checkGuard = async () => {
+            if (!role || userRole !== role) {
+                console.log("AuthGuard: Access denied, redirecting to login", {
+                    userRole: userRole,
+                    requiredRole: role
+
+                });
+
+              /*   try {
+                    await signOut();
+                }
+                catch (err) {
+                    console.log("Force sign-out error", err)
+                } */
+
+            }
+
         }
-        else{
-            console.log("user initialized");
-        }
 
-        if (!role || userRole !== role) {
-            console.log("AuthGuard: Access denied, redirecting to login", {
-                userRole: userRole,
-                requiredRole: role
-
-            });
-
-            const timeout = setTimeout(() => {
-                router.replace("/(public)/login");
-            }, 100);
-            return () => clearTimeout(timeout);
-        }
-    }, [isInitialized, isLoading, userRole, navigationState])
-
-   /*  if (!isInitialized || isLoading || !navigationState?.key) {
-        return (
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                <ActivityIndicator size="large" />
-            </View>
-        );
-    } */
+        checkGuard();
+    }, [isAuthenticated, userRole])
 
     if (!userRole || userRole !== role) {
         return null;

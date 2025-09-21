@@ -9,13 +9,13 @@ interface AuthContextType {
     isAuthenticated: boolean | null;
     isInitialized: boolean | null,
     isLoading: boolean;
-    error: Error | null; 
+    error: Error | null;
     userRole: string | null;
     signIn: (username: string, password: string) => void;
     signOut: () => void;
     checkCode: (code: string) => void;
-    signUp : (username: string, password:string, code:number) => void
-    codeChecked : number | null;
+    signUp: (username: string, password: string, code: number) => void
+    codeChecked: number | null;
 }
 
 export type ServerResponse = {
@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [error, setError] = React.useState<Error | null>(null)
     const [userRole, setUserRole] = React.useState<string | null>('');
     const [isInitialized, setIsInitialized] = React.useState<boolean | null>(null);
-    const [codeChecked, setCodeChecked] = React.useState<number |null>(null);
+    const [codeChecked, setCodeChecked] = React.useState<number | null>(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -91,18 +91,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await SecureStore.setItemAsync('refresh_token', response.refreshToken);
             await SecureStore.setItemAsync('role', response.role);
             setIsAuthenticated(true);
-            setUserRole(response.role);
+            try {
+                setUserRole(response.role);
+            }
+            catch (e) {
+                console.log(e);
+            }
+
             // await setAuthHeader();
 
             if (response.role === 'ADMIN') {
                 router.replace('/(admin)')
-            } else
-            if (response.role === 'COGE') {
-                router.replace('/(coge)')
-            }
-            else {
                 console.log("The user role is: ", userRole)
-            }
+            } else
+                if (response.role === 'COGE') {
+                    router.replace('/(coge)')
+                    console.log("The user role is: ", userRole)
+                }
+                else {
+                    console.log("The user role is: ", userRole)
+                }
 
             return "Login successful";
         }
@@ -114,13 +122,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 throw (new Error("An unknown error occured"));
             }
         }
-    }, [isLoading, error]);
+    }, [isLoading, error, userRole]);
 
     const signUp = React.useCallback(async (username: string, password: string, identification: number) => {
         setIsLoading(true);
         setError(null)
         try {
-            const userResult = await API.post('/auth/register', { username, password , identification});
+            const userResult = await API.post('/auth/register', { username, password, identification });
             const response: RegistrationResponse = userResult.data
 
             return "Registration successful";
@@ -154,13 +162,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setError(null)
 
         try {
-            const { data }  = (await axios.get(`${CONFIG.baseURL}identification/validate-code/${code}`));
+            const { data } = (await axios.get(`${CONFIG.baseURL}identification/validate-code/${code}`));
             setCodeChecked(data.identification);
             //console.log(codeChecked);
         }
 
         catch (err) {
-            if(err instanceof Error){
+            if (err instanceof Error) {
                 throw (err);
             }
             else {
